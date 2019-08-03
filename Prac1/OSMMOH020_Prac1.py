@@ -36,7 +36,7 @@ def button_callback(channel):
     x+=1
     b=str(bin(x))
     print(b)
-    time.sleep(2)
+   # time.sleep(2)
 
 def button_callback2(channel):
 
@@ -49,10 +49,10 @@ def button_callback2(channel):
     x-=1
     b=str(bin(x))
     print(b)
-    time.sleep(2)
+   # time.sleep(2)
 
-GPIO.add_event_detect(7,GPIO.RISING,callback=button_callback)
-GPIO.add_event_detect(16,GPIO.RISING,callback=button_callback2)
+GPIO.add_event_detect(7,GPIO.RISING,callback=button_callback,bouncetime=300)
+GPIO.add_event_detect(16,GPIO.RISING,callback=button_callback2,bouncetime=300)
 # Logic that you write
 def main():
 
