@@ -20,7 +20,7 @@
 int hours, mins, secs;
 long lastInterruptTime = 0; //Used for button debounce
 int RTC; //Holds the RTC instance
-
+int PWM; //Holds PWM instance
 int HH,MM,SS;
 
 void initGPIO(void){
@@ -40,6 +40,7 @@ void initGPIO(void){
 	}
 	
 	//Set Up the Seconds LED for PWM
+	PWM = softPwmCreate(SECS, 0, 100);
 	//Write your logic here
 	
 	printf("LEDS done\n");
