@@ -76,7 +76,9 @@ int main(void){
 	for (;;){
 		//Fetch the time from the RTC
 		//Write your logic here
-		
+		HH = wiringPiI2CReadReg8(RTC, HOUR);
+		MM = wiringPiI2CReadReg8(RTC, MIN);
+		SS = wiringPiI2CReadReg8(RTC, SEC);
 		//Function calls to toggle LEDs
 		//Write your logic here
 		
