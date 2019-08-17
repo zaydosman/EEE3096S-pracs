@@ -4,12 +4,12 @@
  * Modified for EEE3095S/3096S by Keegan Crankshaw
  * August 2019
  * 
- * <STUDNUM_1> <STUDNUM_2>
+ * <OSMMOH020> <BLCDEV001>
  * Date
 */
 
 
-//this comment is checking if u can merge my repo
+//this comment is checking if u can merge my repo again
 #include <wiringPi.h>
 #include <wiringPiI2C.h>
 #include <stdio.h> //For printf functions
@@ -219,6 +219,13 @@ void hourInc(void){
 
 	if (interruptTime - lastInterruptTime>200){
 		printf("Interrupt 1 triggered, %x\n", hours);
+		if(hours == 12){
+			hours = 1;		
+		}
+		else{
+			hours++
+		}
+		wiringPiI2CWriteReg8(RTC, HOUR, hours);
 		//Fetch RTC Time
 		//Increase hours by 1, ensuring not to overflow
 		//Write hours back to the RTC
@@ -238,6 +245,14 @@ void minInc(void){
 	if (interruptTime - lastInterruptTime>200){
 		printf("Interrupt 2 triggered, %x\n", mins);
 		//Fetch RTC Time
+		 if(mins == 60){
+			mins = 1;
+					
+		}
+		else{
+			mins++;
+		}
+		wiringPiI2CWriteReg8(RTC, MIN, mins);
 		//Increase minutes by 1, ensuring not to overflow
 		//Write minutes back to the RTC
 	}
