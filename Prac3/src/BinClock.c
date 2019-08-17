@@ -219,6 +219,13 @@ void hourInc(void){
 
 	if (interruptTime - lastInterruptTime>200){
 		printf("Interrupt 1 triggered, %x\n", hours);
+		if(hours == 12){
+			hours = 1;		
+		}
+		else{
+			hours++
+		}
+		wiringPiI2CWriteReg8(RTC, HOUR, hours);
 		//Fetch RTC Time
 		//Increase hours by 1, ensuring not to overflow
 		//Write hours back to the RTC
@@ -238,6 +245,14 @@ void minInc(void){
 	if (interruptTime - lastInterruptTime>200){
 		printf("Interrupt 2 triggered, %x\n", mins);
 		//Fetch RTC Time
+		 if(mins == 60){
+			mins = 1;
+					
+		}
+		else{
+			mins++;
+		}
+		wiringPiI2CWriteReg8(RTC, MIN, mins);
 		//Increase minutes by 1, ensuring not to overflow
 		//Write minutes back to the RTC
 	}
