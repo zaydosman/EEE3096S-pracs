@@ -14,6 +14,8 @@
 #include <wiringPiI2C.h>
 #include <stdio.h> //For printf functions
 #include <stdlib.h> // For system functions
+#include <signal.h>
+#include <unistd.h>
 
 #include "BinClock.h"
 #include "CurrentTime.h"
@@ -42,7 +44,7 @@ void initGPIO(void){
 	}
 	
 	//Set Up the Seconds LED for PWM
-	PWM = softPwmCreate(SECS, 0, 100);
+	PWM = softPwmCreate(SECS, 0, 60);
 	//Write your logic here
 	
 	printf("LEDS done\n");
@@ -54,19 +56,28 @@ void initGPIO(void){
 	}
 	
 	//Attach interrupts to Buttons
-	int wiringPiISR (int BTNS[0], int INT_EDGE_RISING,  void (hourInc)(void)); //Interrupt for hour increment button
-	int wiringPiISR (int BTNS[1], int INT_EDGE_RISING,  void (minInc)(void)) ; //Interrupt for minute increment button
 	//Write your logic here
+	wiringPiISR (int BTNS[0], int INT_EDGE_RISING,  void (hourInc)(void)); //Interrupt for hour increment button
+	wiringPiISR (int BTNS[1], int INT_EDGE_RISING,  void (minInc)(void)) ; //Interrupt for minute increment button
 	
 	printf("BTNS done\n");
 	printf("Setup done\n");
 }
 void GPIO_cleanup(void){
-	
 
+	for(int i; i < sizeof(LEDS)/sizeof(LEDS[0]); i++){
+            pinMode(LEDS[i], INPUT);
+        }
 
+}
 
+void sig_handler(int signo){
 
+	if(signo == SIGINT){
+		GPIO_cleanup();
+		exit(0);
+		
+	}
 
 }
 
@@ -77,6 +88,7 @@ void GPIO_cleanup(void){
 int main(void){
 	initGPIO();
 
+	signal(SIGINT, sig_handler);
 	//Set random time (3:04PM)
 	//You can comment this file out later
 	wiringPiI2CWriteReg8(RTC, HOUR, 0x13+TIMEZONE);

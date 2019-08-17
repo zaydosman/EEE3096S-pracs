@@ -15,6 +15,8 @@ void secPWM(int units);
 void hourInc(void);
 void minInc(void);
 void toggleTime(void);
+void GPIO_cleanup(void);
+void sig_handler(int signo);
 
 // define constants
 const char RTCAddr = 0x6f;
