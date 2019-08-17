@@ -16,7 +16,7 @@ void hourInc(void);
 void minInc(void);
 void toggleTime(void);
 void GPIO_cleanup(void);
-void sig_handler(int signo);
+static void sig_handler(int signo, siginfo_t *siginfo, void *context);
 char* Dec2RadixN(int dec, int rad);
 
 // define constants
