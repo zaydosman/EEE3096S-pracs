@@ -16,6 +16,7 @@
 #include <stdlib.h> // For system functions
 #include <signal.h>
 #include <unistd.h>
+#include <math.h>
 
 #include "BinClock.h"
 #include "CurrentTime.h"
@@ -113,6 +114,55 @@ int main(void){
 	return 0;
 }
 
+
+char* Dec2RadixN(int dec, int rad){ //define function for Radix n conversion
+
+	int index=0; //initialize variables 
+	int counter = 0; 
+	int numDigits; 
+	char *outstring;
+
+	if(dec==0){ //returns the converted number as 0 if the number to be converted is 0 
+		outstring=malloc(1); 
+		outstring[0]='0'; 
+		return outstring;
+
+	}else{
+
+		free(outstring); 
+		numDigits = ceil(log(dec)/log(rad)); //calculates the number of digits required in the converted number
+
+		if (dec == rad||dec==1||dec==pow(rad,2)){ //increases the number of digits by one for these special cases
+			numDigits++;
+
+		}
+		outstring=malloc(numDigits+1); //allocates memory for the string to be returned 
+	}
+
+	int output[numDigits]; //integer array to store the numeric values of the converted number(note that it will be in the reverse order) 
+	char digits[16] = {'0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B', 'C', 'D', 'E', 'F'}; //array to store digits required for radixes 2-16 
+
+	while (dec!= 0){ //loop that will repeat the process for each digit 
+		output[index] = dec % rad; //stores the converted digit in the output array, in the form of the remainder of the division of the decimal number by the new radix 
+		dec = dec / rad; //the decimal number is set to the integer result of the division of the decimal number by the new radix 
+		index++; //the index is incremented for the next position in the array to store the next converted digit 
+	}
+ 
+	index--; 
+	counter=0;
+ 
+	for ( ;index>=0;index--){ //loop to reverse the output array while simultaneously converting it to the correct digits and storing it in a character array 
+		outstring[counter]=digits[output[index]]; 
+		counter++; 
+	} 
+
+	outstring[numDigits]='\0'; //sets null terminating position in the array to indicate that there are no more characters 
+	return outstring; //returns the converted number as a character array 
+
+} 
+
+
+
 /*
  * Change the hour format to 12 hours
  */
@@ -131,7 +181,8 @@ int hFormat(int hours){
  * Turns on corresponding LED's for hours
  */
 void lightHours(int units){
-	// Write your logic to light up the hour LEDs here	
+	// Write your logic to light up the hour LEDs here
+	
 }
 
 /*

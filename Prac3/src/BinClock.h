@@ -17,6 +17,7 @@ void minInc(void);
 void toggleTime(void);
 void GPIO_cleanup(void);
 void sig_handler(int signo);
+char* Dec2RadixN(int dec, int rad);
 
 // define constants
 const char RTCAddr = 0x6f;
