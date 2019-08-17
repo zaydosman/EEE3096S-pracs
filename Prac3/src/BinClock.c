@@ -54,12 +54,21 @@ void initGPIO(void){
 	}
 	
 	//Attach interrupts to Buttons
+	int wiringPiISR (int BTNS[0], int INT_EDGE_RISING,  void (hourInc)(void)); //Interrupt for hour increment button
+	int wiringPiISR (int BTNS[1], int INT_EDGE_RISING,  void (minInc)(void)) ; //Interrupt for minute increment button
 	//Write your logic here
 	
 	printf("BTNS done\n");
 	printf("Setup done\n");
 }
+void GPIO_cleanup(void){
+	
 
+
+
+
+
+}
 
 /*
  * The main function
