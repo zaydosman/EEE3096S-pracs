@@ -4,12 +4,12 @@
  * Modified for EEE3095S/3096S by Keegan Crankshaw
  * August 2019
  * 
- * <STUDNUM_1> <STUDNUM_2>
+ * <OSMMOH020> <BLCDEV001>
  * Date
 */
 
 
-//this comment is checking if u can merge my repo
+//this comment is checking if u can merge my repo again
 #include <wiringPi.h>
 #include <wiringPiI2C.h>
 #include <stdio.h> //For printf functions
