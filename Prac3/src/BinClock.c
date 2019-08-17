@@ -119,6 +119,8 @@ int main(void){
 		hours = hexCompensation(HH);
 		mins = hexCompensation(MM);
 		secs = hexCompensation(SS);
+
+
 		//Function calls to toggle LEDs
 		//Write your logic here
 		lightHours(0);
