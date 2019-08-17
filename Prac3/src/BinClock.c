@@ -182,7 +182,10 @@ int hFormat(int hours){
  */
 void lightHours(int units){
 	// Write your logic to light up the hour LEDs here
-	
+	char* binHours = Dec2RadixN(hours);
+	for(int i=0;i<4;i++){
+		digitalWrite (LEDS[i], binHours[i]) ;
+	}	
 }
 
 /*
@@ -190,6 +193,10 @@ void lightHours(int units){
  */
 void lightMins(int units){
 	//Write your logic to light up the minute LEDs here
+	char* binMins = Dec2RadixN(mins);
+	for(int i=4;i<11;i++){
+		digitalWrite(LEDS[i] , binMins[i]);
+	}
 }
 
 /*
