@@ -36,9 +36,8 @@ void initGPIO(void){
 	 */
 	printf("Setting up\n");
 	wiringPiSetup(); //This is the default mode. If you want to change pinouts, be aware
-	
 	RTC = wiringPiI2CSetup(RTCAddr); //Set up the RTC
-	
+	wiringPiI2CWriteReg8(RTC, 0x00, 0x80);
 	//Set up the LEDS
 	for(int i; i < sizeof(LEDS)/sizeof(LEDS[0]); i++){
 	    pinMode(LEDS[i], OUTPUT);
@@ -51,7 +50,7 @@ void initGPIO(void){
 	printf("LEDS done\n");
 	
 	//Set up the Buttons
-	for(int j; j < sizeof(BTNS)/sizeof(BTNS[0]); j++){
+	for(int j; j < 3; j++){
 		pinMode(BTNS[j], INPUT);
 		pullUpDnControl(BTNS[j], PUD_UP);
 	}
@@ -103,9 +102,9 @@ int main(void){
 
 	//Set random time (3:04PM)
 	//You can comment this file out later
-	wiringPiI2CWriteReg8(RTC, HOUR, 0x13+TIMEZONE);
+	wiringPiI2CWriteReg8(RTC, HOUR, 0x09+TIMEZONE);
 	wiringPiI2CWriteReg8(RTC, MIN, 0x4);
-	wiringPiI2CWriteReg8(RTC, SEC, 0x00);
+	//wiringPiI2CWriteReg8(RTC, SEC, 0x00);
 
 	// Repeat this until we shut down
 	for (;;){
@@ -116,10 +115,9 @@ int main(void){
 		MM = wiringPiI2CReadReg8(RTC, MIN);
 		SS = wiringPiI2CReadReg8(RTC, SEC);
 
-		hours = hexCompensation(HH);
-		mins = hexCompensation(MM);
-		secs = hexCompensation(SS);
-
+		hours = HH;
+		mins = MM;
+		secs = SS;
 
 		//Function calls to toggle LEDs
 		//Write your logic here
@@ -187,12 +185,14 @@ char* Dec2RadixN(int dec, int rad){ //define function for Radix n conversion
  */
 int hFormat(int hours){
 	/*formats to 12h*/
+	printf("Hours before conversion: %x", hours);
 	if (hours >= 24){
 		hours = 0;
 	}
 	else if (hours > 12){
 		hours -= 12;
 	}
+	printf("Hours after conversion: %x", hours);
 	return (int)hours;
 }
 
@@ -295,13 +295,14 @@ void hourInc(void){
 	//Increase hours by 1, ensuring not to overflow
 	if (interruptTime - lastInterruptTime>200){
 		printf("Interrupt 1 triggered, %x\n", hours);
-		if(hours == 12){
-			hours = 1;
+		if(hours == 0x12){
+			hours =0x1;
 		}
 		else{
 			hours++;
 		}
 		//Write hours back to RTC
+
 		wiringPiI2CWriteReg8(RTC, HOUR, hours);
 	}
 	lastInterruptTime = interruptTime;
@@ -319,8 +320,8 @@ void minInc(void){
 	if (interruptTime - lastInterruptTime>200){
 		printf("Interrupt 2 triggered, %x\n", mins);
 		//Increase minutes by 1, ensuring not to overflow
-		 if(mins == 60){
-			mins = 1;
+		 if(mins == 0x59){
+			mins = 0x1;
 		}
 		else{
 			mins++;
