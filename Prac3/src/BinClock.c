@@ -17,6 +17,7 @@
 #include <signal.h>
 #include <unistd.h>
 #include <math.h>
+#include <string.h>
 
 #include "BinClock.h"
 #include "CurrentTime.h"
@@ -25,7 +26,6 @@
 int hours, mins, secs;
 long lastInterruptTime = 0; //Used for button debounce
 int RTC; //Holds the RTC instance
-int PWM; //Holds PWM instance
 int HH,MM,SS;
 
 void initGPIO(void){
@@ -45,7 +45,7 @@ void initGPIO(void){
 	}
 	
 	//Set Up the Seconds LED for PWM
-	PWM = softPwmCreate(SECS, 0, 60);
+	softPwmCreate(SECS, 0, 60);
 	//Write your logic here
 	
 	printf("LEDS done\n");
@@ -58,8 +58,8 @@ void initGPIO(void){
 	
 	//Attach interrupts to Buttons
 	//Write your logic here
-	wiringPiISR (int BTNS[0], int INT_EDGE_RISING,  void (hourInc)(void)); //Interrupt for hour increment button
-	wiringPiISR (int BTNS[1], int INT_EDGE_RISING,  void (minInc)(void)) ; //Interrupt for minute increment button
+	wiringPiISR (BTNS[0], INT_EDGE_RISING, &hourInc); //Interrupt for hour increment button
+	wiringPiISR (BTNS[1], INT_EDGE_RISING, &minInc); //Interrupt for minute increment button
 	
 	printf("BTNS done\n");
 	printf("Setup done\n");
@@ -72,12 +72,12 @@ void GPIO_cleanup(void){
 
 }
 
-void sig_handler(int signo){
+static void sig_handler(int signo, siginfo_t *siginfo, void *context){
 
 	if(signo == SIGINT){
 		GPIO_cleanup();
 		exit(0);
-		
+		printf("flag");
 	}
 
 }
@@ -87,24 +87,42 @@ void sig_handler(int signo){
  * This function is called, and calls all relevant functions we've written
  */
 int main(void){
-	initGPIO();
 
-	signal(SIGINT, sig_handler);
+	struct sigaction act;
+	memset(&act, '\0', sizeof(act));
+	act.sa_sigaction=&sig_handler;
+	act.sa_flags = SA_SIGINFO;
+
+	if(sigaction(SIGINT, &act, NULL)<0){
+                        perror("sigaction");
+                        return 1;
+                }
+
+	initGPIO();
 	toggleTime();
-	
-	
+
+	//Set random time (3:04PM)
+	//You can comment this file out later
+	wiringPiI2CWriteReg8(RTC, HOUR, 0x13+TIMEZONE);
+	wiringPiI2CWriteReg8(RTC, MIN, 0x4);
+	wiringPiI2CWriteReg8(RTC, SEC, 0x00);
+
 	// Repeat this until we shut down
 	for (;;){
+
 		//Fetch the time from the RTC
 		//Write your logic here
 		HH = wiringPiI2CReadReg8(RTC, HOUR);
 		MM = wiringPiI2CReadReg8(RTC, MIN);
 		SS = wiringPiI2CReadReg8(RTC, SEC);
-		//Function calls to toggle LEDs
-		//Write your logic here
+
 		hours = hexCompensation(HH);
 		mins = hexCompensation(MM);
-		secs = hecCompensation(SS);
+		secs = hexCompensation(SS);
+		//Function calls to toggle LEDs
+		//Write your logic here
+		lightHours(0);
+		lightMins(0);
 		// Print out the time we have stored on our RTC
 		printf("The current time is: %x:%x:%x\n", hours, mins, secs);
 
@@ -129,7 +147,6 @@ char* Dec2RadixN(int dec, int rad){ //define function for Radix n conversion
 
 	}else{
 
-		free(outstring); 
 		numDigits = ceil(log(dec)/log(rad)); //calculates the number of digits required in the converted number
 
 		if (dec == rad||dec==1||dec==pow(rad,2)){ //increases the number of digits by one for these special cases
@@ -182,7 +199,7 @@ int hFormat(int hours){
  */
 void lightHours(int units){
 	// Write your logic to light up the hour LEDs here
-	char* binHours = Dec2RadixN(hours);
+	char* binHours = Dec2RadixN(hours, 2);
 	for(int i=0;i<4;i++){
 		digitalWrite (LEDS[i], binHours[i]) ;
 	}	
@@ -193,7 +210,7 @@ void lightHours(int units){
  */
 void lightMins(int units){
 	//Write your logic to light up the minute LEDs here
-	char* binMins = Dec2RadixN(mins);
+	char* binMins = Dec2RadixN(mins, 2);
 	for(int i=4;i<11;i++){
 		digitalWrite(LEDS[i] , binMins[i]);
 	}
@@ -331,7 +348,7 @@ void toggleTime(void){
 
 		SS = decCompensation(SS);
 		wiringPiI2CWriteReg8(RTC, SEC, 0b10000000+SS);
-
+		printf("The current toggle time is: %x:%x:%x\n", HH, MM, SS);
 	}
 	lastInterruptTime = interruptTime;
 }
