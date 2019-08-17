@@ -100,11 +100,14 @@ int main(void){
 		HH = wiringPiI2CReadReg8(RTC, HOUR);
 		MM = wiringPiI2CReadReg8(RTC, MIN);
 		SS = wiringPiI2CReadReg8(RTC, SEC);
-		//Function calls to toggle LEDs
-		//Write your logic here
+
 		hours = hexCompensation(HH);
 		mins = hexCompensation(MM);
 		secs = hecCompensation(SS);
+		//Function calls to toggle LEDs
+		//Write your logic here
+		lightHours(0);
+		lightMins(0);
 		// Print out the time we have stored on our RTC
 		printf("The current time is: %x:%x:%x\n", hours, mins, secs);
 
@@ -182,7 +185,7 @@ int hFormat(int hours){
  */
 void lightHours(int units){
 	// Write your logic to light up the hour LEDs here
-	char* binHours = Dec2RadixN(hours);
+	char* binHours = Dec2RadixN(hours, 2);
 	for(int i=0;i<4;i++){
 		digitalWrite (LEDS[i], binHours[i]) ;
 	}	
@@ -193,7 +196,7 @@ void lightHours(int units){
  */
 void lightMins(int units){
 	//Write your logic to light up the minute LEDs here
-	char* binMins = Dec2RadixN(mins);
+	char* binMins = Dec2RadixN(mins, 2);
 	for(int i=4;i<11;i++){
 		digitalWrite(LEDS[i] , binMins[i]);
 	}
