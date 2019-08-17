@@ -89,11 +89,8 @@ int main(void){
 	initGPIO();
 
 	signal(SIGINT, sig_handler);
-	//Set random time (3:04PM)
-	//You can comment this file out later
-	wiringPiI2CWriteReg8(RTC, HOUR, 0x13+TIMEZONE);
-	wiringPiI2CWriteReg8(RTC, MIN, 0x4);
-	wiringPiI2CWriteReg8(RTC, SEC, 0x00);
+	toggleTime();
+	
 	
 	// Repeat this until we shut down
 	for (;;){
@@ -104,7 +101,9 @@ int main(void){
 		SS = wiringPiI2CReadReg8(RTC, SEC);
 		//Function calls to toggle LEDs
 		//Write your logic here
-		
+		hours = hexCompensation(HH);
+		mins = hexCompensation(MM);
+		secs = hecCompensation(SS);
 		// Print out the time we have stored on our RTC
 		printf("The current time is: %x:%x:%x\n", hours, mins, secs);
 
