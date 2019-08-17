@@ -8,6 +8,8 @@
  * Date
 */
 
+
+//this comment is checking if u can merge my repo
 #include <wiringPi.h>
 #include <wiringPiI2C.h>
 #include <stdio.h> //For printf functions
