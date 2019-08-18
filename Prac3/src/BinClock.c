@@ -82,7 +82,7 @@ static void sig_handler(int signo, siginfo_t *siginfo, void *context){
 }
 
 int toHex(int dec){
-	printf("\n dec before conversion: %d");
+	printf("\n dec before hex conversion: %d", dec);
         int hex;
 	int remainder;
 	int count=0;
@@ -94,8 +94,9 @@ int toHex(int dec){
 	dec=dec/16;
 
 	}
-
+	printf("\n dec after hex conversion: %d", hex);
 	return hex;
+
 }
 
 int toDec(int hex){
@@ -128,7 +129,7 @@ int toDec(int hex){
 
 	}
 
-	printf("\ndec after hex: %d", dec);
+	printf("\nhex after dec conversion: %d", dec);
 	return dec+1;
 
 }
