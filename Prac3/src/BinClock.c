@@ -158,9 +158,7 @@ int main(void){
 	//Set random time (3:04PM)
 	//You can comment this file out later
 
-
-
-	wiringPiI2CWriteReg8(RTC, HOUR,0x13+TIMEZONE);
+	wiringPiI2CWriteReg8(RTC, HOUR,0x10+TIMEZONE);
 	wiringPiI2CWriteReg8(RTC, MIN, 0x4);
 	//wiringPiI2CWriteReg8(RTC, SEC, initosc);
 
@@ -245,14 +243,12 @@ char* Dec2RadixN(int dec, int rad){ //define function for Radix n conversion
  */
 int hFormat(int hours){
 	/*formats to 12h*/
-	printf("Hours before conversion: %x", hours);
 	if (hours >= 24){
 		hours = 0;
 	}
 	else if (hours > 12){
 		hours -= 12;
 	}
-	printf("Hours after conversion: %x", hours);
 	return (int)hours;
 }
 
@@ -261,10 +257,13 @@ int hFormat(int hours){
  */
 void lightHours(int units){
 	// Write your logic to light up the hour LEDs here
-	char* binHours = Dec2RadixN(hours, 2);
+	char* binHours = Dec2RadixN(hFormat(hexCompensation(hours)), 2);
+	printf("\n dec2radixn output: %s \n", binHours);
+
 	for(int i=0;i<4;i++){
 		digitalWrite (LEDS[i], binHours[i]) ;
-	}	
+		printf("\n dec2radixn outputs: %c \n", binHours[i]);
+	}
 }
 
 /*
