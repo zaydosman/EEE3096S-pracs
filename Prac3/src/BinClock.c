@@ -351,8 +351,21 @@ void hourInc(void){
 	if (interruptTime - lastInterruptTime>200){
 		printf("Interrupt 1 triggered, %x\n", hours);
 		if(hours == 0x24){
-			hours = 0x01;
+			hours = 0x00;
 		}
+
+		else if(hours==0x09){
+
+			hours=0x10;
+
+		}
+
+		else if(hours==0x19){
+
+			hours=0x20;
+
+		}
+
 		else{
 			hours=hours+0x01;
 		}
