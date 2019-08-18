@@ -260,13 +260,12 @@ void lightHours(int units){
 
 
 	char* binHours = Dec2RadixN(hFormat(hexCompensation(hours)), 2);
-
-	for(int i=0;i<4;i++){
+	printf("binhours output: %s",binHours);
+	for(int i=strlen(binHours)-1;i>=0;i--){
 
 		int binHoursIndex = binHours[i] - '0';
 
-		digitalWrite (LEDS[i], binHoursIndex) ;
-		printf("\n dec2radixn outputs: %c \n", binHours[i]);
+		digitalWrite (LEDS[i+(4-strlen(binHours))], binHoursIndex);
 	}
 }
 
