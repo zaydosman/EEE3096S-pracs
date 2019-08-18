@@ -71,6 +71,8 @@ void GPIO_cleanup(void){
             pinMode(LEDS[i], INPUT);
         }
 
+	pinMode(SECS, INPUT);
+
 }
 
 static void sig_handler(int signo, siginfo_t *siginfo, void *context){
@@ -78,7 +80,6 @@ static void sig_handler(int signo, siginfo_t *siginfo, void *context){
 	if(signo == SIGINT){
 		GPIO_cleanup();
 		exit(0);
-		printf("flag");
 	}
 
 }
@@ -159,7 +160,7 @@ int main(void){
 	//Set random time (3:04PM)
 	//You can comment this file out later
 
-	wiringPiI2CWriteReg8(RTC, HOUR,0x13+TIMEZONE);
+	wiringPiI2CWriteReg8(RTC, HOUR,0x17+TIMEZONE);
 	wiringPiI2CWriteReg8(RTC, MIN, 0x51);
 	//wiringPiI2CWriteReg8(RTC, SEC, initosc);
 
@@ -265,6 +266,8 @@ void lightHours(int units){
 	}
 
 	char* binHours = Dec2RadixN(hFormat(hexCompensation(hours)), 2);
+	printf("\n hours in binary is: %s \n",binHours);
+
 	for(int i=strlen(binHours)-1;i>=0;i--){
 
 		int binHoursIndex = binHours[i] - '0';
@@ -284,6 +287,7 @@ void lightMins(int units){
         }
 
         char* binMins = Dec2RadixN(hexCompensation(mins), 2);
+	printf("\n minutes in binary is: %s \n",binMins);
         for(int i=strlen(binMins)-1;i>=0;i--){
 
                 int binMinsIndex = binMins[i] - '0';
