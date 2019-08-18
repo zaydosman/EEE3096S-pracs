@@ -46,7 +46,6 @@ void initGPIO(void){
 	}
 	
 	//Set Up the Seconds LED for PWM
-	pinMode(SECS, OUTPUT);
 	softPwmCreate(SECS, 0, 60);
 	//Write your logic here
 	
@@ -183,6 +182,7 @@ int main(void){
 		//Write your logic here
 		lightHours(0);
 		lightMins(0);
+		secPWM(0);
 		// Print out the time we have stored on our RTC
 		printf("The current time is: %x:%x:%x\n", hours, mins, secs);
 
