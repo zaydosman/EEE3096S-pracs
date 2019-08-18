@@ -81,24 +81,59 @@ static void sig_handler(int signo, siginfo_t *siginfo, void *context){
 
 }
 
-int toBCD(int decimal){
+int toHex(int dec){
 
-        return (decimal/10) << 4 | (decimal%10);
+        int hex;
+	int remainder;
+	int count=0;
+
+	for(count=0; dec>1; count++){
+
+	remainder=dec%16;
+	hex = hex + remainder * pow(10, count);
+	dec=dec/16;
+
+	}
+
+	return hex;
 
 }
 
-int toDec(int bcd){
+int toDec(int hex){
 
-	int msb = 0;
-	int lsb = 0;
+	char hexVal[2];
+	sprintf(hexVal, "%x", hex);
+	printf("char array is:%s", hexVal);
+	int len = strlen(hexVal);
 
+	int base =1;
 
-	msb = (bcd & 0b11110000) >> 4;
-	lsb = (bcd & 0b00001111);
+	int dec = 0;
 
-	return((msb*10)+lsb);
+	for (int i = len-1; i>=0; i--){
+
+		if(hexVal[i]>='0' && hexVal[i]<='9'){
+
+			dec+=(hexVal[i]-48)*base;
+
+			base=base*16;
+
+		}
+
+		else if(hexVal[i]>='A' && hexVal[i]<='F'){
+
+			dec+=(hexVal[i]-55)*base;
+			base=base*16;
+
+		}
+
+	}
+
+	printf("dec after hex: %d", dec);
+	return dec;
 
 }
+
 
 /*
  * The main function
@@ -134,7 +169,7 @@ int main(void){
 		MM = wiringPiI2CReadReg8(RTC, MIN);
 		SS = wiringPiI2CReadReg8(RTC, SEC);
 
-		hours = HH;
+		hours = toDec(HH);
 		mins = MM;
 		secs = SS;
 
@@ -314,7 +349,7 @@ void hourInc(void){
 	//Increase hours by 1, ensuring not to overflow
 	if (interruptTime - lastInterruptTime>200){
 		printf("Interrupt 1 triggered, %x\n", hours);
-		if(hours == 12){
+		if(hours == 24){
 			hours = 1;
 		}
 		else{

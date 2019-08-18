@@ -18,8 +18,8 @@ void toggleTime(void);
 void GPIO_cleanup(void);
 static void sig_handler(int signo, siginfo_t *siginfo, void *context);
 char* Dec2RadixN(int dec, int rad);
-int toBCD(int decimal);
-int toDec(int bcd);
+int toHex(int dec);
+int toDec(int hex);
 
 // define constants
 const char RTCAddr = 0x6f;
