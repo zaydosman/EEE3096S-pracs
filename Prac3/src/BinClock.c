@@ -37,7 +37,8 @@ void initGPIO(void){
 	printf("Setting up\n");
 	wiringPiSetup(); //This is the default mode. If you want to change pinouts, be aware
 	RTC = wiringPiI2CSetup(RTCAddr); //Set up the RTC
-	wiringPiI2CWriteReg8(RTC, 0x00, 0x80);
+	wiringPiI2CWriteReg8(RTC, HOUR, 0x00);
+	wiringPiI2CWriteReg8(RTC, SEC, 0x80);
 	//Set up the LEDS
 	for(int i; i < sizeof(LEDS)/sizeof(LEDS[0]); i++){
 	    pinMode(LEDS[i], OUTPUT);
@@ -156,9 +157,9 @@ int main(void){
 
 	//Set random time (3:04PM)
 	//You can comment this file out later
-	wiringPiI2CWriteReg8(RTC, HOUR, toHex(14));
-	wiringPiI2CWriteReg8(RTC, MIN, toHex(05));
-	//wiringPiI2CWriteReg8(RTC, SEC, toBCD(1));
+	wiringPiI2CWriteReg8(RTC, HOUR,0x13+TIMEZONE);
+	wiringPiI2CWriteReg8(RTC, MIN, 0x4);
+	//wiringPiI2CWriteReg8(RTC, SEC, 0x00);
 
 	// Repeat this until we shut down
 	for (;;){
@@ -169,16 +170,16 @@ int main(void){
 		MM = wiringPiI2CReadReg8(RTC, MIN);
 		SS = wiringPiI2CReadReg8(RTC, SEC);
 
-		hours = toDec(HH);
-		mins = toDec(MM);
-		secs = toDec(SS);
+		hours = HH;
+		mins = MM;
+		secs = SS;
 
 		//Function calls to toggle LEDs
 		//Write your logic here
 		lightHours(0);
 		lightMins(0);
 		// Print out the time we have stored on our RTC
-		printf("The current time is: %d:%d:%d\n", hours, mins, secs);
+		printf("The current time is: %x:%x:%x\n", hours, mins, secs);
 
 		//using a delay to make our program "less CPU hungry"
 		delay(1000); //milliseconds
@@ -349,11 +350,11 @@ void hourInc(void){
 	//Increase hours by 1, ensuring not to overflow
 	if (interruptTime - lastInterruptTime>200){
 		printf("Interrupt 1 triggered, %x\n", hours);
-		if(hours == 24){
-			hours = 1;
+		if(hours == 0x24){
+			hours = 0x01;
 		}
 		else{
-			hours++;
+			hours=hours+0x01;
 		}
 		//Write hours back to RTC
 
