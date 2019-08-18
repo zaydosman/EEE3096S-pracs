@@ -46,7 +46,7 @@ void initGPIO(void){
 	}
 	
 	//Set Up the Seconds LED for PWM
-	softPwmCreate(SECS, 0, 60);
+	softPwmCreate(SECS, 0, 100);
 	//Write your logic here
 	
 	printf("LEDS done\n");
