@@ -277,10 +277,20 @@ void lightHours(int units){
  */
 void lightMins(int units){
 	//Write your logic to light up the minute LEDs here
-	char* binMins = Dec2RadixN(mins, 2);
-	for(int i=4;i<11;i++){
-		digitalWrite(LEDS[i] , binMins[i]);
-	}
+
+	 for(int j = 4; j<11; j++){
+                digitalWrite(LEDS[j],0);
+        }
+
+        char* binMins = Dec2RadixN(hFormat(hexCompensation(mins)), 2);
+        printf("binmins output: %s",binMins);
+        for(int i=strlen(binMins)-1;i>=0;i--){
+
+                int binMinsIndex = binHours[i] - '0';
+
+                digitalWrite (LEDS[(i+4)+(6-strlen(binHours))], binMinsIndex);
+        }
+
 }
 
 /*
