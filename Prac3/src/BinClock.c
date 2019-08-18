@@ -121,8 +121,8 @@ int main(void){
 
 	//Set random time (3:04PM)
 	//You can comment this file out later
-	wiringPiI2CWriteReg8(RTC, HOUR, toBCD(14));
-	wiringPiI2CWriteReg8(RTC, MIN, toBCD(07));
+	wiringPiI2CWriteReg8(RTC, HOUR, 0x14);
+	wiringPiI2CWriteReg8(RTC, MIN, 0x45);
 	//wiringPiI2CWriteReg8(RTC, SEC, toBCD(1));
 
 	// Repeat this until we shut down
@@ -134,16 +134,16 @@ int main(void){
 		MM = wiringPiI2CReadReg8(RTC, MIN);
 		SS = wiringPiI2CReadReg8(RTC, SEC);
 
-		hours = toDec(HH & 0x3f);
-		mins = toDec(MM & 0x7f);
-		secs = toDec(SS & 0x7f);
+		hours = HH;
+		mins = MM;
+		secs = SS;
 
 		//Function calls to toggle LEDs
 		//Write your logic here
 		lightHours(0);
 		lightMins(0);
 		// Print out the time we have stored on our RTC
-		printf("The current time is: %x:%x:%x\n", HH, MM, SS);
+		printf("The current time is: %x:%x:%x\n", hours, mins, secs);
 
 		//using a delay to make our program "less CPU hungry"
 		delay(1000); //milliseconds
@@ -314,8 +314,8 @@ void hourInc(void){
 	//Increase hours by 1, ensuring not to overflow
 	if (interruptTime - lastInterruptTime>200){
 		printf("Interrupt 1 triggered, %x\n", hours);
-		if(hours == 0x12){
-			hours =0x1;
+		if(hours == 12){
+			hours = 1;
 		}
 		else{
 			hours++;
@@ -339,8 +339,8 @@ void minInc(void){
 	if (interruptTime - lastInterruptTime>200){
 		printf("Interrupt 2 triggered, %x\n", mins);
 		//Increase minutes by 1, ensuring not to overflow
-		 if(mins == 0x59){
-			mins = 0x1;
+		 if(mins == 59){
+			mins = 0;
 		}
 		else{
 			mins++;
