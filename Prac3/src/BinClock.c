@@ -27,7 +27,7 @@ int hours, mins, secs;
 long lastInterruptTime = 0; //Used for button debounce
 int RTC; //Holds the RTC instance
 int HH,MM,SS;
-
+int initosc = 0x80;
 void initGPIO(void){
 	/* 
 	 * Sets GPIO using wiringPi pins. see pinout.xyz for specific wiringPi pins
@@ -38,7 +38,7 @@ void initGPIO(void){
 	wiringPiSetup(); //This is the default mode. If you want to change pinouts, be aware
 	RTC = wiringPiI2CSetup(RTCAddr); //Set up the RTC
 	wiringPiI2CWriteReg8(RTC, HOUR, 0x00);
-	wiringPiI2CWriteReg8(RTC, SEC, 0x80);
+	wiringPiI2CWriteReg8(RTC, SEC, 0b10000000);
 	//Set up the LEDS
 	for(int i; i < sizeof(LEDS)/sizeof(LEDS[0]); i++){
 	    pinMode(LEDS[i], OUTPUT);
@@ -157,9 +157,12 @@ int main(void){
 
 	//Set random time (3:04PM)
 	//You can comment this file out later
+
+
+
 	wiringPiI2CWriteReg8(RTC, HOUR,0x13+TIMEZONE);
 	wiringPiI2CWriteReg8(RTC, MIN, 0x4);
-	//wiringPiI2CWriteReg8(RTC, SEC, 0x00);
+	//wiringPiI2CWriteReg8(RTC, SEC, initosc);
 
 	// Repeat this until we shut down
 	for (;;){
@@ -173,6 +176,8 @@ int main(void){
 		hours = HH;
 		mins = MM;
 		secs = SS;
+
+		secs&=0b01111111;
 
 		//Function calls to toggle LEDs
 		//Write your logic here
@@ -388,11 +393,31 @@ void minInc(void){
 	if (interruptTime - lastInterruptTime>200){
 		printf("Interrupt 2 triggered, %x\n", mins);
 		//Increase minutes by 1, ensuring not to overflow
-		 if(mins == 59){
-			mins = 0;
+		 if(mins == 0x59){
+			mins = 0x00;
 		}
+
+		else if(mins==0x49){
+			mins=0x50;
+		}
+
+		else if(mins==0x39){
+                        mins=0x40;
+                }
+
+		else if(mins==0x29){
+                        mins=0x30;
+                }
+
+		else if(mins==0x19){
+			mins=0x20;
+		}
+		else if(mins==0x9){
+                        mins=0x10;
+                }
+
 		else{
-			mins++;
+			mins=mins+0x01;
 		}
 		//Write minutes back to RTC
 		wiringPiI2CWriteReg8(RTC, MIN, mins);
