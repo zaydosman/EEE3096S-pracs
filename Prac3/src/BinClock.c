@@ -81,6 +81,25 @@ static void sig_handler(int signo, siginfo_t *siginfo, void *context){
 
 }
 
+int toBCD(int decimal){
+
+        return (decimal/10) << 4 | (decimal%10);
+
+}
+
+int toDec(int bcd){
+
+	int msb = 0;
+	int lsb = 0;
+
+
+	msb = (bcd & 0b11110000) >> 4;
+	lsb = (bcd & 0b00001111);
+
+	return((msb*10)+lsb);
+
+}
+
 /*
  * The main function
  * This function is called, and calls all relevant functions we've written
@@ -102,9 +121,9 @@ int main(void){
 
 	//Set random time (3:04PM)
 	//You can comment this file out later
-	wiringPiI2CWriteReg8(RTC, HOUR, 0x09+TIMEZONE);
-	wiringPiI2CWriteReg8(RTC, MIN, 0x4);
-	//wiringPiI2CWriteReg8(RTC, SEC, 0x00);
+	wiringPiI2CWriteReg8(RTC, HOUR, toBCD(14));
+	wiringPiI2CWriteReg8(RTC, MIN, toBCD(07));
+	//wiringPiI2CWriteReg8(RTC, SEC, toBCD(1));
 
 	// Repeat this until we shut down
 	for (;;){
@@ -115,16 +134,16 @@ int main(void){
 		MM = wiringPiI2CReadReg8(RTC, MIN);
 		SS = wiringPiI2CReadReg8(RTC, SEC);
 
-		hours = HH;
-		mins = MM;
-		secs = SS;
+		hours = toDec(HH & 0x3f);
+		mins = toDec(MM & 0x7f);
+		secs = toDec(SS & 0x7f);
 
 		//Function calls to toggle LEDs
 		//Write your logic here
 		lightHours(0);
 		lightMins(0);
 		// Print out the time we have stored on our RTC
-		printf("The current time is: %x:%x:%x\n", hours, mins, secs);
+		printf("The current time is: %x:%x:%x\n", HH, MM, SS);
 
 		//using a delay to make our program "less CPU hungry"
 		delay(1000); //milliseconds
