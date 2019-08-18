@@ -159,7 +159,7 @@ int main(void){
 	//You can comment this file out later
 
 	wiringPiI2CWriteReg8(RTC, HOUR,0x13+TIMEZONE);
-	wiringPiI2CWriteReg8(RTC, MIN, 0x4);
+	wiringPiI2CWriteReg8(RTC, MIN, 0x51);
 	//wiringPiI2CWriteReg8(RTC, SEC, initosc);
 
 	// Repeat this until we shut down
@@ -263,7 +263,6 @@ void lightHours(int units){
 	}
 
 	char* binHours = Dec2RadixN(hFormat(hexCompensation(hours)), 2);
-	printf("binhours output: %s",binHours);
 	for(int i=strlen(binHours)-1;i>=0;i--){
 
 		int binHoursIndex = binHours[i] - '0';
@@ -282,7 +281,7 @@ void lightMins(int units){
                 digitalWrite(LEDS[j],0);
         }
 
-        char* binMins = Dec2RadixN(hFormat(hexCompensation(mins)), 2);
+        char* binMins = Dec2RadixN(hexCompensation(mins), 2);
         printf("binmins output: %s",binMins);
         for(int i=strlen(binMins)-1;i>=0;i--){
 
@@ -300,6 +299,8 @@ void lightMins(int units){
  */
 void secPWM(int units){
 	// Write your logic here
+	
+
 }
 
 /*
