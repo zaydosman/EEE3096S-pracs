@@ -18,6 +18,7 @@
 #include <unistd.h>
 #include <math.h>
 #include <string.h>
+#include <softPwm.h>
 
 #include "BinClock.h"
 #include "CurrentTime.h"
@@ -45,6 +46,7 @@ void initGPIO(void){
 	}
 	
 	//Set Up the Seconds LED for PWM
+	pinMode(SECS, OUTPUT);
 	softPwmCreate(SECS, 0, 60);
 	//Write your logic here
 	
@@ -282,7 +284,6 @@ void lightMins(int units){
         }
 
         char* binMins = Dec2RadixN(hexCompensation(mins), 2);
-        printf("binmins output: %s",binMins);
         for(int i=strlen(binMins)-1;i>=0;i--){
 
                 int binMinsIndex = binMins[i] - '0';
@@ -299,8 +300,7 @@ void lightMins(int units){
  */
 void secPWM(int units){
 	// Write your logic here
-	
-
+	softPwmWrite(SECS,hexCompensation(secs));
 }
 
 /*
