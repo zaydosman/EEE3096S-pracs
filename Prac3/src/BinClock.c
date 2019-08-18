@@ -84,60 +84,6 @@ static void sig_handler(int signo, siginfo_t *siginfo, void *context){
 
 }
 
-int toHex(int dec){
-	printf("\n dec before hex conversion: %d", dec);
-        int hex;
-	int remainder;
-	int count=0;
-
-	for(count=0; dec>1; count++){
-
-	remainder=dec%16;
-	hex = hex + remainder * pow(10, count);
-	dec=dec/16;
-
-	}
-	printf("\n dec after hex conversion: %d", hex);
-	return hex;
-
-}
-
-int toDec(int hex){
-
-	char hexVal[2];
-	sprintf(hexVal, "%x", hex);
-	printf("\n char array is:%s", hexVal);
-	int len = strlen(hexVal);
-
-	int base =1;
-
-	int dec = 0;
-
-	for (int i = len-1; i>=0; i--){
-
-		if(hexVal[i]>='0' && hexVal[i]<='9'){
-
-			dec+=(hexVal[i]-48)*base;
-
-			base=base*16;
-
-		}
-
-		else if(hexVal[i]>='A' && hexVal[i]<='F'){
-
-			dec+=(hexVal[i]-55)*base;
-			base=base*16;
-
-		}
-
-	}
-
-	printf("\nhex after dec conversion: %d", dec);
-	return dec+1;
-
-}
-
-
 /*
  * The main function
  * This function is called, and calls all relevant functions we've written
