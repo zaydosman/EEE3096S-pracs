@@ -286,9 +286,9 @@ void lightMins(int units){
         printf("binmins output: %s",binMins);
         for(int i=strlen(binMins)-1;i>=0;i--){
 
-                int binMinsIndex = binHours[i] - '0';
+                int binMinsIndex = binMins[i] - '0';
 
-                digitalWrite (LEDS[(i+4)+(6-strlen(binHours))], binMinsIndex);
+                digitalWrite (LEDS[(i+4)+(6-strlen(binMins))], binMinsIndex);
         }
 
 }
