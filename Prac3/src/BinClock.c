@@ -82,7 +82,7 @@ static void sig_handler(int signo, siginfo_t *siginfo, void *context){
 }
 
 int toHex(int dec){
-
+	printf("\n dec before conversion: %d");
         int hex;
 	int remainder;
 	int count=0;
@@ -96,14 +96,13 @@ int toHex(int dec){
 	}
 
 	return hex;
-
 }
 
 int toDec(int hex){
 
 	char hexVal[2];
 	sprintf(hexVal, "%x", hex);
-	printf("char array is:%s", hexVal);
+	printf("\n char array is:%s", hexVal);
 	int len = strlen(hexVal);
 
 	int base =1;
@@ -129,8 +128,8 @@ int toDec(int hex){
 
 	}
 
-	printf("dec after hex: %d", dec);
-	return dec;
+	printf("\ndec after hex: %d", dec);
+	return dec+1;
 
 }
 
@@ -156,8 +155,8 @@ int main(void){
 
 	//Set random time (3:04PM)
 	//You can comment this file out later
-	wiringPiI2CWriteReg8(RTC, HOUR, 0x14);
-	wiringPiI2CWriteReg8(RTC, MIN, 0x45);
+	wiringPiI2CWriteReg8(RTC, HOUR, toHex(14));
+	wiringPiI2CWriteReg8(RTC, MIN, toHex(05));
 	//wiringPiI2CWriteReg8(RTC, SEC, toBCD(1));
 
 	// Repeat this until we shut down
@@ -170,15 +169,15 @@ int main(void){
 		SS = wiringPiI2CReadReg8(RTC, SEC);
 
 		hours = toDec(HH);
-		mins = MM;
-		secs = SS;
+		mins = toDec(MM);
+		secs = toDec(SS);
 
 		//Function calls to toggle LEDs
 		//Write your logic here
 		lightHours(0);
 		lightMins(0);
 		// Print out the time we have stored on our RTC
-		printf("The current time is: %x:%x:%x\n", hours, mins, secs);
+		printf("The current time is: %d:%d:%d\n", hours, mins, secs);
 
 		//using a delay to make our program "less CPU hungry"
 		delay(1000); //milliseconds
