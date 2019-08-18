@@ -257,7 +257,10 @@ int hFormat(int hours){
  */
 void lightHours(int units){
 	// Write your logic to light up the hour LEDs here
-
+	
+	for(int j = 0; j<4; j++){
+		digitalWrite(LEDS[j],0);
+	}
 
 	char* binHours = Dec2RadixN(hFormat(hexCompensation(hours)), 2);
 	printf("binhours output: %s",binHours);
