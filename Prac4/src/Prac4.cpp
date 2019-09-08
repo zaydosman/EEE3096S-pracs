@@ -27,20 +27,36 @@ unsigned char buffer[2][BUFFER_SIZE][2];
 int buffer_location = 0;
 bool bufferReading = 0; //using this to switch between column 0 and 1 - the first column
 bool threadReady = false; //using this to finish writing the first column at the start of the song, before the column is played
-
+long lastInterruptTime = 0;
 
 // Configure your interrupts here.
 // Don't forget to use debouncing.
 
 void play_pause_isr(void){
     //Write your logis here
-    playing = !playing;
+    long interruptTime = millis();
+
+    if (interruptTime-lastInterruptTime>200){
+
+        playing = !playing;
+        printf("pause pushed");
+    }
     
+    lastInterruptTime=interruptTime;
 }
 
 void stop_isr(void){
     // Write your logic here
-    exit(0);
+    long interruptTime = millis();
+    
+    if (interruptTime - lastInterruptTime>200){
+         printf("exit pushed");
+         exit(0);
+
+    }
+
+    lastInterruptTime=interruptTime;
+   
 }
 
 /*
@@ -51,12 +67,12 @@ int setup_gpio(void){
     wiringPiSetup();
     //setting up the buttons
 	//TODO
-    pinMode(23, INPUT);
-    pullUpDnControl(23, PUD_UP);
-    pinMode(25, INPUT);
-    pullUpDnControl(25, PUD_UP);
-    wiringPiISR (23, INT_EDGE_RISING, play_pause_isr);
-    wiringPiISR (25, INT_EDGE_RISING, stop_isr);
+    pinMode(0, INPUT);
+    pinMode(7, INPUT);
+    pullUpDnControl(0, PUD_UP);
+    pullUpDnControl(7, PUD_UP);
+    wiringPiISR (0, INT_EDGE_RISING, play_pause_isr);
+    wiringPiISR (7, INT_EDGE_RISING, stop_isr);
     //setting up the SPI interface
     //TODO
     wiringPiSPISetup(0, 409600);
