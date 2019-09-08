@@ -40,6 +40,7 @@ void play_pause_isr(void){
 
 void stop_isr(void){
     // Write your logic here
+    exit();
 }
 
 /*
@@ -79,6 +80,8 @@ void *playThread(void *threadargs){
     while(!stopped){
         //Code to suspend playing if paused
 		//TODO
+        while(!playing)
+            continue;
         
         //Write the buffer out to SPI
         //TODO
