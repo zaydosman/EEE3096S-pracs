@@ -15,7 +15,7 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  */
-//test edit
+//test
 #include "Prac4.h"
 #include "wiringPi.h"
 #include "wiringPiSPI.h"
@@ -58,7 +58,7 @@ int setup_gpio(void){
     wiringPiISR (25, INT_EDGE_RISING, &stop_isr);
     //setting up the SPI interface
     //TODO
-    wiringPiSPISetup(0, 819200);
+    wiringPiSPISetup(0, 500000);
     return 0;
 }
 
