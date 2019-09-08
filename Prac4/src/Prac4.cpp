@@ -17,7 +17,8 @@
  */
 //test edit
 #include "Prac4.h"
-
+#include "wiringPi.h"
+#include "wiringPiSPI.h"
 using namespace std;
 
 bool playing = true; // should be set false when paused
@@ -30,8 +31,11 @@ bool threadReady = false; //using this to finish writing the first column at the
 
 // Configure your interrupts here.
 // Don't forget to use debouncing.
+
 void play_pause_isr(void){
     //Write your logis here
+    playing = !playing;
+    
 }
 
 void stop_isr(void){
@@ -46,8 +50,15 @@ int setup_gpio(void){
     wiringPiSetup();
     //setting up the buttons
 	//TODO
+    pinMode(23, INPUT);
+    pullUpDnControl(23, PUD_UP);
+    pinMode(25, INPUT);
+    pullUpDnControl(25, PUD_UP);
+    wiringPiISR (23, INT_EDGE_RISING, &play_pause_isr);
+    wiringPiISR (25, INT_EDGE_RISING, &stop_isr);
     //setting up the SPI interface
     //TODO
+    wiringPiSPISetup(0, 819200);
     return 0;
 }
 
@@ -71,7 +82,7 @@ void *playThread(void *threadargs){
         
         //Write the buffer out to SPI
         //TODO
-		
+		wiringPiSPIDataRW(0, buffer[bufferReading][buffer_location], 2);
         //Do some maths to check if you need to toggle buffers
         buffer_location++;
         if(buffer_location >= BUFFER_SIZE) {
@@ -141,9 +152,9 @@ int main(){
             continue;
         }
         //Set config bits for first 8 bit packet and OR with upper bits
-        buffer[bufferWriting][counter][0] = ; //TODO
+        buffer[bufferWriting][counter][0] = 0b01110000|(ch>>4); //TODO
         //Set next 8 bit packet
-        buffer[bufferWriting][counter][1] = ; //TODO
+        buffer[bufferWriting][counter][1] = ch<<4; //TODO
 
         counter++;
         if(counter >= BUFFER_SIZE+1){
