@@ -40,7 +40,7 @@ void play_pause_isr(void){
 
 void stop_isr(void){
     // Write your logic here
-    exit();
+    exit(0);
 }
 
 /*
@@ -55,11 +55,11 @@ int setup_gpio(void){
     pullUpDnControl(23, PUD_UP);
     pinMode(25, INPUT);
     pullUpDnControl(25, PUD_UP);
-    wiringPiISR (23, INT_EDGE_RISING, &play_pause_isr);
-    wiringPiISR (25, INT_EDGE_RISING, &stop_isr);
+    wiringPiISR (23, INT_EDGE_RISING, play_pause_isr);
+    wiringPiISR (25, INT_EDGE_RISING, stop_isr);
     //setting up the SPI interface
     //TODO
-    wiringPiSPISetup(0, 500000);
+    wiringPiSPISetup(0, 409600);
     return 0;
 }
 
@@ -155,9 +155,9 @@ int main(){
             continue;
         }
         //Set config bits for first 8 bit packet and OR with upper bits
-        buffer[bufferWriting][counter][0] = 0b01110000|(ch>>4); //TODO
+        buffer[bufferWriting][counter][0] = 0b01110000|(ch>>6); //TODO
         //Set next 8 bit packet
-        buffer[bufferWriting][counter][1] = ch<<4; //TODO
+        buffer[bufferWriting][counter][1] = ch<<2; //TODO
 
         counter++;
         if(counter >= BUFFER_SIZE+1){
