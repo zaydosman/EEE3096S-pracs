@@ -34,7 +34,7 @@ long lastInterruptTime = 0;
 
 void play_pause_isr(void){
     //Write your logis here
-     printf("pause pushed");
+     
     long interruptTime = millis();
 
     if (interruptTime-lastInterruptTime>200){
@@ -48,7 +48,7 @@ void play_pause_isr(void){
 
 void stop_isr(void){
     // Write your logic here
-     printf("exit pushed");
+     
     long interruptTime = millis();
     
     if (interruptTime - lastInterruptTime>200){
@@ -72,8 +72,8 @@ int setup_gpio(void){
 	//TODO
     pinMode(23, INPUT);
     pinMode(25, INPUT);
-    pullUpDnControl(23, PUD_UP);
-    pullUpDnControl(25, PUD_UP);
+    pullUpDnControl(23, PUD_DOWN);
+    pullUpDnControl(25, PUD_DOWN);
     wiringPiISR (23, INT_EDGE_RISING, play_pause_isr);
     wiringPiISR (25, INT_EDGE_RISING, stop_isr);
     //setting up the SPI interface
