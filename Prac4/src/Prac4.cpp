@@ -70,15 +70,15 @@ int setup_gpio(void){
     wiringPiSetup();
     //setting up the buttons
 	//TODO
-    pinMode(23, INPUT);
-    pinMode(25, INPUT);
-    pullUpDnControl(23, PUD_DOWN);
-    pullUpDnControl(25, PUD_DOWN);
-    wiringPiISR (23, INT_EDGE_RISING, play_pause_isr);
-    wiringPiISR (25, INT_EDGE_RISING, stop_isr);
+    pinMode(PLAY_BUTTON, INPUT);
+    pinMode(STOP_BUTTON, INPUT);
+    pullUpDnControl(PLAY_BUTTON, PUD_DOWN);
+    pullUpDnControl(STOP_BUTTON, PUD_DOWN);
+    wiringPiISR (PLAY_BUTTON, INT_EDGE_RISING, play_pause_isr);
+    wiringPiISR (STOP_BUTTON, INT_EDGE_RISING, stop_isr);
     //setting up the SPI interface
     //TODO
-    wiringPiSPISetup(0, 500000);
+    wiringPiSPISetup(SPI_CHAN, SPI_SPEED);
     return 0;
 }
 
