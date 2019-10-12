@@ -1,5 +1,5 @@
 import time
-
+from threading import Thread
 # Importing modules
 import spidev # To communicate with SPI devices
 from numpy import interp	# To scale values
@@ -44,30 +44,27 @@ newsec = 0
 
 def readADC():
 
-  global humidity
-  global light
-  global temp
+  while True:
+    global humidity
+    global light
+    global temp
 
-  humidity = analogInput(0) # Reading from CH0
-  light = analogInput(1) #read from CH1
-  temp = analogInput(2) #read from CH2
+    humidity = Volts(analogInput(0)) # Reading from CH0
+    light = analogInput(1) #read from CH1
+    temp = Temp(analogInput(2)) #read from CH2
 
-  humidity = Volts(humidity)
-  temp=Temp(temp)
-
+x = Thread(target = readADC)
+x.setDaemon(True)
+x.start()
 
 while True:
 
     localtime = time.asctime( time.localtime(time.time()) )
     newsec = int((localtime[17:19]))
-    readADC()
-    
-    
+
     if newsec==oldsec+1:
         print("newsec: "+str(newsec))
         print("oldsec: "+str(oldsec))
-
-        readADC()
         
         print("humidity reading: " + str(humidity))
         print("light reading: " + str(light))
