@@ -1,10 +1,16 @@
 import time
 from threading import Thread
+import blynklib
 # Importing modules
 import spidev # To communicate with SPI devices
 from numpy import interp	# To scale values
 from time import sleep	# To add delay
 import RPi.GPIO as GPIO	# To use GPIO pins
+
+#blynk auth token and init
+
+BLYNK_AUTH = 'YlDEykDXy-5CSGx_wkO_7DCmS96s82gu'
+blynk = blynklib.Blynk(BLYNK_AUTH)
 
 # Start SPI connection
 spi = spidev.SpiDev() # Created an object
@@ -57,12 +63,22 @@ x = Thread(target = readADC)
 x.setDaemon(True)
 x.start()
 
+@blynk.handle_event('read V0')
+def read_virtual_pin_handler(pin):
+
+  blynk.virtual_write(0, str(humidity))
+  blynk.virtual_write(1, str(light))
+  blynk.virtual_write(2, str(temp))
+
+
 while True:
 
     localtime = time.asctime( time.localtime(time.time()) )
     newsec = int((localtime[17:19]))
+    blynk.run()
 
     if newsec==oldsec+1:
+              
         print("newsec: "+str(newsec))
         print("oldsec: "+str(oldsec))
         
