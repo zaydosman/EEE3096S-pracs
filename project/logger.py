@@ -13,7 +13,7 @@ GPIO.setmode(GPIO.BCM)
 
 #blynk auth token and init
 
-BLYNK_AUTH = 'YlDEykDXy-5CSGx_wkO_7DCmS96s82gu'
+BLYNK_AUTH = 'sgbwT95hAT8CoQx47ohgypSg_jwVTmji'
 blynk = blynklib.Blynk(BLYNK_AUTH)
 
 # Start SPI connection
@@ -172,6 +172,11 @@ def read_virtual_pin_handler(pin):
   blynk.virtual_write(0, str(humidity))
   blynk.virtual_write(1, str(light))
   blynk.virtual_write(2, str(temp))
+  if alarm == 1:
+    blynk.virtual_write(3, 255)
+  elif alarm==0:
+    blynk.virtual_write(3, 0)
+  blynk.virtual_write(4, str(systime))
 
 try:
 
