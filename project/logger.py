@@ -20,6 +20,7 @@ spi = spidev.SpiDev() # Created an object
 spi.open(0,0)	
 
 GPIO.setup(5, GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
+GPIO.setup(6, GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
 
 # Initializing LED pin as OUTPUT pin
 #led_pin = 20
@@ -36,6 +37,7 @@ sampletime=1
 localtime=0
 systime=0
 t0=time.time()
+monitoring=1
 
 def sampleCallback(channel):
   
@@ -49,6 +51,17 @@ def sampleCallback(channel):
     sampletime=1
 
 GPIO.add_event_detect(5, GPIO.RISING, callback=sampleCallback, bouncetime=300)
+
+def monitoringCallback(channel):
+
+  global monitoring
+
+  if monitoring==1:
+    monitoring=0
+  elif monitoring==0:
+    monitoring=1
+
+GPIO.add_event_detect(6, GPIO.RISING, callback=monitoringCallback, bouncetime=300)
 
 # Read MCP3008 data
 def analogInput(channel):
@@ -76,19 +89,21 @@ def readADC():
   global localtime
   global systime
   global t0
+  global monitoring
 
   localtime = time.asctime( time.localtime(time.time()) )
-  systime =   time.asctime( time.localtime(time.time()-t0) )
+  systime = time.strftime("%H:%M:%S", time.gmtime(time.time()-t0))
+
 
   while True:
 
+    if monitoring==1:
+      humidity = Volts(analogInput(0)) # Reading from CH0
+      light = analogInput(1) #read from CH1
+      temp = Temp(analogInput(2)) #read from CH2
+
     localtime = time.asctime( time.localtime(time.time()) )
-    systime =   time.asctime( time.localtime(time.time()-t0) )
-
-    humidity = Volts(analogInput(0)) # Reading from CH0
-    light = analogInput(1) #read from CH1
-    temp = Temp(analogInput(2)) #read from CH2
-
+    systime = time.strftime("%H:%M:%S", time.gmtime(time.time()-t0))
     time.sleep(sampletime)
 
 x = Thread(target = readADC)
@@ -111,10 +126,10 @@ try:
     
     blynk.run()
 
-    t.add_row([str(localtime[10:19]), str(systime[10:19]), str(humidity), str(temp), str(light),' ', ' '])
+    t.add_row([str(localtime[10:19]), str(systime), str(humidity), str(temp), str(light),' ', ' '])
     print(t)
 
-    time.sleep(1)
+    time.sleep(0.9)
 
 except KeyboardInterrupt:
   GPIO.cleanup()
