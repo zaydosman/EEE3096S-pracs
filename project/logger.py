@@ -7,6 +7,7 @@ from numpy import interp	# To scale values
 from time import sleep	# To add delay
 import RPi.GPIO as GPIO	# To use GPIO pins
 from prettytable import PrettyTable
+import os
 
 GPIO.setmode(GPIO.BCM)
 
@@ -21,6 +22,7 @@ spi.open(0,0)
 
 GPIO.setup(5, GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
 GPIO.setup(6, GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
+GPIO.setup(13, GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
 
 # Initializing LED pin as OUTPUT pin
 #led_pin = 20
@@ -38,6 +40,7 @@ localtime=0
 systime=0
 t0=time.time()
 monitoring=1
+cleartable=0
 
 def sampleCallback(channel):
   
@@ -62,6 +65,18 @@ def monitoringCallback(channel):
     monitoring=1
 
 GPIO.add_event_detect(6, GPIO.RISING, callback=monitoringCallback, bouncetime=300)
+
+def resetCallback(channel):
+  
+  global cleartable
+  global t0
+
+  cleartable=1
+
+  t0=time.time()
+  
+
+GPIO.add_event_detect(13, GPIO.RISING, callback=resetCallback, bouncetime=300)
 
 # Read MCP3008 data
 def analogInput(channel):
@@ -128,6 +143,11 @@ try:
 
     t.add_row([str(localtime[10:19]), str(systime), str(humidity), str(temp), str(light),' ', ' '])
     print(t)
+
+    if cleartable ==1:
+      t.clear_rows()
+      cleartable=0
+      os.system('clear')
 
     time.sleep(0.9)
 
