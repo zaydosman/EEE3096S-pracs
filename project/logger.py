@@ -23,6 +23,7 @@ spi.open(0,0)
 GPIO.setup(5, GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
 GPIO.setup(6, GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
 GPIO.setup(13, GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
+GPIO.setup(26, GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
 
 # Initializing LED pin as OUTPUT pin
 #led_pin = 20
@@ -41,6 +42,10 @@ systime=0
 t0=time.time()
 monitoring=1
 cleartable=0
+dacout=0
+alarm=0
+alarmreset=0
+
 
 def sampleCallback(channel):
   
@@ -78,6 +83,16 @@ def resetCallback(channel):
 
 GPIO.add_event_detect(13, GPIO.RISING, callback=resetCallback, bouncetime=300)
 
+def alarmResetCallback(channel):
+
+  global alarm
+  global alarmreset
+
+  alarm = 0
+  alarmreset = 1
+
+GPIO.add_event_detect(26, GPIO.RISING, callback=alarmResetCallback, bouncetime=300)
+
 # Read MCP3008 data
 def analogInput(channel):
   spi.max_speed_hz = 1350000
@@ -105,6 +120,7 @@ def readADC():
   global systime
   global t0
   global monitoring
+  global dacout
 
   localtime = time.asctime( time.localtime(time.time()) )
   systime = time.strftime("%H:%M:%S", time.gmtime(time.time()-t0))
@@ -119,11 +135,36 @@ def readADC():
 
     localtime = time.asctime( time.localtime(time.time()) )
     systime = time.strftime("%H:%M:%S", time.gmtime(time.time()-t0))
+
+    dacout=(light/1023)*humidity
+    dacout=round(dacout, 2)
+
     time.sleep(sampletime)
 
 x = Thread(target = readADC)
 x.setDaemon(True)
 x.start()
+
+def Alarm():
+
+  sleep(1)
+  global dacout
+  global alarm
+  global alarmreset
+
+  while True:
+    
+    if dacout<0.65 or dacout>2.65:
+      alarm=1
+
+    if alarmreset == 1:
+      alarmreset=0
+      sleep(180)
+
+  
+y=Thread(target = Alarm)
+y.setDaemon(True)
+y.start()
 
 @blynk.handle_event('read V0')
 def read_virtual_pin_handler(pin):
@@ -141,7 +182,7 @@ try:
     
     blynk.run()
 
-    t.add_row([str(localtime[10:19]), str(systime), str(humidity), str(temp), str(light),' ', ' '])
+    t.add_row([str(localtime[10:19]), str(systime), str(humidity), str(temp), str(light),str(dacout), str(alarm)])
     print(t)
 
     if cleartable ==1:
@@ -149,7 +190,7 @@ try:
       cleartable=0
       os.system('clear')
 
-    time.sleep(0.9)
+    time.sleep(sampletime-0.1)
 
 except KeyboardInterrupt:
   GPIO.cleanup()
