@@ -6,6 +6,7 @@ import spidev # To communicate with SPI devices
 from numpy import interp	# To scale values
 from time import sleep	# To add delay
 import RPi.GPIO as GPIO	# To use GPIO pins
+GPIO.setmode(GPIO.BCM)
 
 #blynk auth token and init
 
@@ -15,6 +16,8 @@ blynk = blynklib.Blynk(BLYNK_AUTH)
 # Start SPI connection
 spi = spidev.SpiDev() # Created an object
 spi.open(0,0)	
+
+GPIO.setup(5, GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
 
 # Initializing LED pin as OUTPUT pin
 #led_pin = 20
@@ -27,6 +30,20 @@ spi.open(0,0)
 temp=0
 humidity=0
 light=0
+sampletime=1
+
+def sampleCallback(channel):
+  
+  global sampletime
+
+  if sampletime==1:
+    sampletime=2
+  elif sampletime==2:
+    sampletime=5
+  elif sampletime==5:
+    sampletime=1
+
+GPIO.add_event_detect(5, GPIO.RISING, callback=sampleCallback, bouncetime=300)
 
 # Read MCP3008 data
 def analogInput(channel):
@@ -70,25 +87,30 @@ def read_virtual_pin_handler(pin):
   blynk.virtual_write(1, str(light))
   blynk.virtual_write(2, str(temp))
 
-
-while True:
+try:
+  while True:
 
     localtime = time.asctime( time.localtime(time.time()) )
     newsec = int((localtime[17:19]))
     blynk.run()
 
-    if newsec==oldsec+1:
-              
-        print("newsec: "+str(newsec))
-        print("oldsec: "+str(oldsec))
+    if newsec==oldsec+sampletime:
+
+      print("sampletime: "+str(sampletime))        
+      print("newsec: "+str(newsec))
+      print("oldsec: "+str(oldsec))
         
-        print("humidity reading: " + str(humidity))
-        print("light reading: " + str(light))
-        print("temperature reading: " + str(temp))
+      print("humidity reading: " + str(humidity))
+      print("light reading: " + str(light))
+      print("temperature reading: " + str(temp))
 
-        oldsec=newsec
+      oldsec=newsec
 
-        if oldsec==59:
-            oldsec=0
-            time.sleep(0.1)
+      if oldsec==59:
+          oldsec=0
+          time.sleep(0.1)
+
+
+except KeyboardInterrupt:
+  GPIO.cleanup()
        
