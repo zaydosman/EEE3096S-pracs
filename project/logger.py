@@ -133,7 +133,7 @@ def readADC():
 
     dacout=(light/1023)*humidity
     dacout=round(dacout, 2)
-
+    blynk.run()
     time.sleep(sampletime)
 
 x = Thread(target = readADC)
@@ -183,7 +183,7 @@ try:
   while True:
 
     
-    blynk.run()
+    
 
     t.add_row([str(localtime[10:19]), str(systime), str(humidity), str(temp), str(light),str(dacout), str(alarm)])
     print(t)
@@ -193,7 +193,7 @@ try:
       cleartable=0
       os.system('clear')
 
-    time.sleep(sampletime-0.1)
+    time.sleep(sampletime)
 
 #resets GPIO when program interrupted by keyboard interrupt
 except KeyboardInterrupt:
