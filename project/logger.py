@@ -35,7 +35,7 @@ light=0
 sampletime=1
 localtime=0
 systime=0
-t0=time.clock()
+t0=time.time()
 
 def sampleCallback(channel):
   
@@ -78,11 +78,12 @@ def readADC():
   global t0
 
   localtime = time.asctime( time.localtime(time.time()) )
-  systime =   time.asctime( time.localtime(time.clock()-t0 ))
+  systime =   time.asctime( time.localtime(time.time()-t0) )
 
   while True:
 
     localtime = time.asctime( time.localtime(time.time()) )
+    systime =   time.asctime( time.localtime(time.time()-t0) )
 
     humidity = Volts(analogInput(0)) # Reading from CH0
     light = analogInput(1) #read from CH1
