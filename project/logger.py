@@ -1,7 +1,7 @@
+# Importing modules
 import time
 from threading import Thread
 import blynklib
-# Importing modules
 import spidev # To communicate with SPI devices
 from numpy import interp	# To scale values
 from time import sleep	# To add delay
@@ -9,10 +9,10 @@ import RPi.GPIO as GPIO	# To use GPIO pins
 from prettytable import PrettyTable
 import os
 
+#set gpio mode to BCM
 GPIO.setmode(GPIO.BCM)
 
 #blynk auth token and init
-
 BLYNK_AUTH = 'sgbwT95hAT8CoQx47ohgypSg_jwVTmji'
 blynk = blynklib.Blynk(BLYNK_AUTH)
 
@@ -25,14 +25,7 @@ GPIO.setup(6, GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
 GPIO.setup(13, GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
 GPIO.setup(26, GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
 
-# Initializing LED pin as OUTPUT pin
-#led_pin = 20
-#GPIO.setmode(GPIO.BCM)
-#GPIO.setup(led_pin, GPIO.OUT)
-# Creating a PWM channel at 100Hz frequency
-#pwm = GPIO.PWM(led_pin, 100)
-#pwm.start(0)
-
+#set global variables
 temp=0
 humidity=0
 light=0
@@ -46,7 +39,7 @@ dacout=0
 alarm=0
 alarmreset=0
 
-
+#button interrupts and callback functions
 def sampleCallback(channel):
   
   global sampletime
@@ -99,17 +92,19 @@ def analogInput(channel):
   adc = spi.xfer2([1,(8+channel)<<4,0])
   data = ((adc[1]&3) << 8) + adc[2]
   return data
-  	
+
+#convert ADC value to voltage
 def Volts(data):
   volts = (data * 3.3) / float(1023)
   volts = round(volts, 2) # Round off to 2 decimal places
   return volts
 
+#convert ADC value to temperature
 def Temp(volts):
   temperature = (volts-0.5)/10
   return temperature
 
-
+#log sensor data based on sample time, runs in separate thread
 def readADC():
 
   global humidity
@@ -145,6 +140,7 @@ x = Thread(target = readADC)
 x.setDaemon(True)
 x.start()
 
+#check DAC voltage value for alarm triggering, runs in separate thread
 def Alarm():
 
   sleep(1)
@@ -166,6 +162,7 @@ y=Thread(target = Alarm)
 y.setDaemon(True)
 y.start()
 
+#Blynk app updating function
 @blynk.handle_event('read V0')
 def read_virtual_pin_handler(pin):
 
@@ -178,6 +175,7 @@ def read_virtual_pin_handler(pin):
     blynk.virtual_write(3, 0)
   blynk.virtual_write(4, str(systime))
 
+#main while loop, runs blynk updater and prints values to terminal
 try:
 
   t=PrettyTable(['RTC Time', 'Sys Timer', 'Humidity', 'Temp', 'Light', 'DAC Out', 'Alarm'])
@@ -197,6 +195,7 @@ try:
 
     time.sleep(sampletime-0.1)
 
+#resets GPIO when program interrupted by keyboard interrupt
 except KeyboardInterrupt:
   GPIO.cleanup()
        
