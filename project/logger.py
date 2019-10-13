@@ -6,6 +6,8 @@ import spidev # To communicate with SPI devices
 from numpy import interp	# To scale values
 from time import sleep	# To add delay
 import RPi.GPIO as GPIO	# To use GPIO pins
+from prettytable import PrettyTable
+
 GPIO.setmode(GPIO.BCM)
 
 #blynk auth token and init
@@ -31,6 +33,9 @@ temp=0
 humidity=0
 light=0
 sampletime=1
+localtime=0
+systime=0
+t0=time.clock()
 
 def sampleCallback(channel):
   
@@ -61,20 +66,29 @@ def Temp(volts):
   temperature = (volts-0.5)/10
   return temperature
 
-localtime = time.asctime( time.localtime(time.time()) )
-oldsec = int((localtime[17:19]))
-newsec = 0
 
 def readADC():
 
+  global humidity
+  global light
+  global temp
+  global sampletime
+  global localtime
+  global systime
+  global t0
+
+  localtime = time.asctime( time.localtime(time.time()) )
+  systime =   time.asctime( time.localtime(time.clock()-t0 ))
+
   while True:
-    global humidity
-    global light
-    global temp
+
+    localtime = time.asctime( time.localtime(time.time()) )
 
     humidity = Volts(analogInput(0)) # Reading from CH0
     light = analogInput(1) #read from CH1
     temp = Temp(analogInput(2)) #read from CH2
+
+    time.sleep(sampletime)
 
 x = Thread(target = readADC)
 x.setDaemon(True)
@@ -88,28 +102,18 @@ def read_virtual_pin_handler(pin):
   blynk.virtual_write(2, str(temp))
 
 try:
+
+  t=PrettyTable(['RTC Time', 'Sys Timer', 'Humidity', 'Temp', 'Light', 'DAC Out', 'Alarm'])
+
   while True:
 
-    localtime = time.asctime( time.localtime(time.time()) )
-    newsec = int((localtime[17:19]))
+    
     blynk.run()
 
-    if newsec==oldsec+sampletime:
+    t.add_row([str(localtime[10:19]), str(systime[10:19]), str(humidity), str(temp), str(light),' ', ' '])
+    print(t)
 
-      print("sampletime: "+str(sampletime))        
-      print("newsec: "+str(newsec))
-      print("oldsec: "+str(oldsec))
-        
-      print("humidity reading: " + str(humidity))
-      print("light reading: " + str(light))
-      print("temperature reading: " + str(temp))
-
-      oldsec=newsec
-
-      if oldsec==59:
-          oldsec=0
-          time.sleep(0.1)
-
+    time.sleep(1)
 
 except KeyboardInterrupt:
   GPIO.cleanup()
